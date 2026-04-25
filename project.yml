@@ -1,0 +1,24 @@
+name: RoutineTracker
+options:
+  bundleIdPrefix: com.example
+targets:
+  RoutineTracker:
+    type: application
+    platform: iOS
+    deploymentTarget: "14.0"
+    sources:
+      - Sources
+    settings:
+      base:
+        INFOPLIST_FILE: Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.RoutineTracker
+  RoutineTrackerMac:
+    type: application
+    platform: macOS
+    deploymentTarget: "11.0"
+    sources:
+      - Sources
+    settings:
+      base:
+        INFOPLIST_FILE: Info-macOS.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.RoutineTracker
