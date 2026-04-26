@@ -2,13 +2,13 @@ import SwiftUI
 
 struct RunningRoutineView: View {
     let routine: Routine
+    var onExitToHome: (() -> Void)? = nil
     @State private var currentTaskIndex = 0
     @State private var taskStartTime = Date()
     @State private var totalTime: TimeInterval = 0
     @State private var timer: Timer?
     @State private var elapsedTime: TimeInterval = 0
     @State private var isCompleted = false
-    @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var settingsManager: SettingsManager
 
     var body: some View {
@@ -17,19 +17,15 @@ struct RunningRoutineView: View {
                 .ignoresSafeArea()
 
             if isCompleted {
-                CompletionView(routine: routine, totalTime: totalTime).environmentObject(settingsManager)
+                CompletionView(routine: routine, totalTime: totalTime) {
+                    onExitToHome?()
+                }
+                .environmentObject(settingsManager)
             } else {
                 VStack(spacing: 30) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(Translations.string("running", language: settingsManager.settings.language))
-                            .font(.system(size: 12, weight: .semibold))
-                            .tracking(0.15)
-                            .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                        
-                        Text(routine.name)
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                    }
+                    Text(routine.name)
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 24)
                     .padding(.top, 30)
@@ -59,7 +55,7 @@ struct RunningRoutineView: View {
                             .padding(24)
                             .glassCard(cornerRadius: 16)
 
-                            if routine.tasks[currentTaskIndex].targetTime > 0 {
+                            if settingsManager.settings.showTaskTargets && routine.tasks[currentTaskIndex].targetTime > 0 {
                                 VStack(spacing: 10) {
                                     VStack(spacing: 6) {
                                         Text(Translations.string("task_target", language: settingsManager.settings.language))
@@ -99,29 +95,18 @@ struct RunningRoutineView: View {
 
                     Spacer()
 
-                    VStack(spacing: 12) {
-                        Button(action: nextTask) {
-                            HStack {
-                                Image(systemName: "arrow.right.circle.fill")
-                                Text(Translations.string("next_task", language: settingsManager.settings.language))
-                                    .font(.system(size: 16, weight: .semibold))
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
+                    Button(action: nextTask) {
+                        HStack {
+                            Image(systemName: currentTaskIndex == routine.tasks.count - 1 ? "checkmark.circle.fill" : "arrow.right.circle.fill")
+                            Text(currentTaskIndex == routine.tasks.count - 1
+                                 ? Translations.string("finish_routine", language: settingsManager.settings.language)
+                                 : Translations.string("next_task", language: settingsManager.settings.language))
+                                .font(.system(size: 16, weight: .semibold))
                         }
-                        .buttonStyle(.glassProminent)
-
-                        Button(action: completeRoutine) {
-                            HStack {
-                                Image(systemName: "checkmark.circle.fill")
-                                Text(Translations.string("complete_routine", language: settingsManager.settings.language))
-                                    .font(.system(size: 16, weight: .semibold))
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                        }
-                        .buttonStyle(.glass)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
                     }
+                    .buttonStyle(.glassProminent)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 30)
                 }
@@ -140,6 +125,7 @@ struct RunningRoutineView: View {
     }
 
     private func startTimer() {
+        timer?.invalidate()
         taskStartTime = Date()
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
             elapsedTime = Date().timeIntervalSince(taskStartTime)

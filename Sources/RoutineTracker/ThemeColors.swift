@@ -14,6 +14,22 @@ struct RGBColor: Codable, Hashable {
         self.green = max(0, min(1, green))
         self.blue = max(0, min(1, blue))
     }
+
+    init?(hex: String) {
+        let cleaned = hex
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "#", with: "")
+
+        guard cleaned.count == 6, let value = Int(cleaned, radix: 16) else {
+            return nil
+        }
+
+        self.init(
+            red: Double((value >> 16) & 0xFF) / 255.0,
+            green: Double((value >> 8) & 0xFF) / 255.0,
+            blue: Double(value & 0xFF) / 255.0
+        )
+    }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -24,6 +40,15 @@ struct RGBColor: Codable, Hashable {
     
     enum CodingKeys: String, CodingKey {
         case red, green, blue
+    }
+
+    var hexString: String {
+        String(
+            format: "#%02X%02X%02X",
+            Int(red * 255),
+            Int(green * 255),
+            Int(blue * 255)
+        )
     }
 }
 
@@ -69,34 +94,27 @@ struct ThemeColors {
         palette(for: theme, customPalettes: customPalettes)
     }
 
+    static func canonicalThemeId(for theme: String) -> String {
+        switch theme {
+        case "teal":
+            return "spaceGrey"
+        case "purple", "orange", "solarFlare", "electricLagoon", "roseNoir", "photoFlux":
+            return "spaceGrey"
+        default:
+            return theme
+        }
+    }
+
     // Only dark palettes are defined. Light palettes are auto-converted by the system if needed.
     static let palettes: [ThemePalette] = [
         ThemePalette(
             id: "spaceGrey",
             name: "Space Grey",
-            text: RGBColor(red: 1.0, green: 1.0, blue: 1.0),
-            background: RGBColor(red: 0.06, green: 0.06, blue: 0.07),
-            accent: RGBColor(red: 0.65, green: 0.65, blue: 0.68),
-            surface: RGBColor(red: 0.11, green: 0.11, blue: 0.12),
-            backgroundGradientEnd: RGBColor(red: 0.10, green: 0.10, blue: 0.11)
-        ),
-        ThemePalette(
-            id: "purple",
-            name: "Purple",
-            text: RGBColor(red: 1.0, green: 1.0, blue: 1.0),
-            background: RGBColor(red: 0.07, green: 0.05, blue: 0.14),
-            accent: RGBColor(red: 0.70, green: 0.50, blue: 0.90),
-            surface: RGBColor(red: 0.14, green: 0.09, blue: 0.24),
-            backgroundGradientEnd: RGBColor(red: 0.18, green: 0.08, blue: 0.30)
-        ),
-        ThemePalette(
-            id: "orange",
-            name: "Orange",
-            text: RGBColor(red: 1.0, green: 1.0, blue: 1.0),
-            background: RGBColor(red: 0.10, green: 0.08, blue: 0.06),
-            accent: RGBColor(red: 0.96, green: 0.64, blue: 0.35),
-            surface: RGBColor(red: 0.18, green: 0.14, blue: 0.11),
-            backgroundGradientEnd: RGBColor(red: 0.22, green: 0.14, blue: 0.06)
+            text: RGBColor(red: 0.98, green: 0.99, blue: 1.0),
+            background: RGBColor(red: 0.02, green: 0.03, blue: 0.05),
+            accent: RGBColor(red: 0.76, green: 0.86, blue: 1.0),
+            surface: RGBColor(red: 0.16, green: 0.20, blue: 0.27),
+            backgroundGradientEnd: RGBColor(red: 0.05, green: 0.09, blue: 0.16)
         )
     ]
 
@@ -105,7 +123,7 @@ struct ThemeColors {
     }
 
     static func palette(for theme: String, customPalettes: [ThemePalette] = []) -> ThemePalette {
-        let resolvedTheme = (theme == "teal") ? "spaceGrey" : theme
+        let resolvedTheme = canonicalThemeId(for: theme)
 
         // Check custom palettes first
         if let custom = customPalettes.first(where: { $0.id == resolvedTheme }) {

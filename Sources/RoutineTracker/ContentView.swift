@@ -28,38 +28,31 @@ struct ContentView: View {
                     .ignoresSafeArea()
 
                 VStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(Translations.string("routine_manager", language: settingsManager.settings.language))
-                            .font(.system(size: 12, weight: .semibold, design: .default))
-                            .tracking(0.15)
-                            .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-
-                        HStack(spacing: 16) {
-                            Text(Translations.string("routine_tracker", language: settingsManager.settings.language))
-                                .font(.system(size: 32, weight: .bold, design: .default))
-                                .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                            Spacer()
-                            Button(action: {
-                                sheetMode = .stats
-                            }) {
-                                Image(systemName: "chart.bar.fill")
-                                    .font(.system(size: 18, weight: .semibold))
-                                    .foregroundColor(settingsManager.settings.currentPalette.accentColor)
-                                    .frame(width: 36, height: 36)
-                            }
-                            .buttonStyle(.glass)
-                            .clipShape(Circle())
-                            Button(action: {
-                                sheetMode = .settings
-                            }) {
-                                Image(systemName: "gear")
-                                    .font(.system(size: 18, weight: .semibold))
-                                    .foregroundColor(settingsManager.settings.currentPalette.accentColor)
-                                    .frame(width: 36, height: 36)
-                            }
-                            .buttonStyle(.glass)
-                            .clipShape(Circle())
+                    HStack(spacing: 16) {
+                        Text(Translations.string("routine_tracker", language: settingsManager.settings.language))
+                            .font(.system(size: 32, weight: .bold, design: .default))
+                            .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+                        Spacer()
+                        Button(action: {
+                            sheetMode = .stats
+                        }) {
+                            Image(systemName: "chart.bar.fill")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(settingsManager.settings.currentPalette.accentColor)
+                                .frame(width: 36, height: 36)
                         }
+                        .buttonStyle(.glass)
+                        .clipShape(Circle())
+                        Button(action: {
+                            sheetMode = .settings
+                        }) {
+                            Image(systemName: "gear")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(settingsManager.settings.currentPalette.accentColor)
+                                .frame(width: 36, height: 36)
+                        }
+                        .buttonStyle(.glass)
+                        .clipShape(Circle())
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 24)
@@ -102,12 +95,11 @@ struct ContentView: View {
                                                     .font(.system(size: 14, weight: .medium))
                                                     .foregroundColor(settingsManager.settings.currentPalette.accentColor)
                                             }
-                                            Text(routine.isScheduled ? Translations.string("scheduled_routine", language: settingsManager.settings.language) : Translations.string("target", language: settingsManager.settings.language))
-                                                .font(.system(size: 12, weight: .semibold))
-                                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                                            Text(routine.targetSummary)
-                                                .font(.system(size: 16, weight: .semibold))
-                                                .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+                                            if routine.isScheduled || settingsManager.settings.showTaskTargets {
+                                                Text(routine.targetSummary)
+                                                    .font(.system(size: 16, weight: .semibold))
+                                                    .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+                                            }
                                             HStack(spacing: 6) {
                                                 ForEach(routine.tasks.prefix(3), id: \.id) { task in
                                                     Text(task.name)

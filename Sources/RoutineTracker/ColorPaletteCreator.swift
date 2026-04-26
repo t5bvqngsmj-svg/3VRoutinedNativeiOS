@@ -3,8 +3,8 @@ import SwiftUI
 struct ColorPaletteCreator: View {
     @ObservedObject var settingsManager: SettingsManager
     var editingPalette: ThemePalette? = nil
-    @Environment(\.presentationMode) var presentationMode
-    
+    @Environment(\.dismiss) private var dismiss
+
     @State private var paletteName: String
     @State private var textColor: RGBColor
     @State private var backgroundColor: RGBColor
@@ -12,7 +12,7 @@ struct ColorPaletteCreator: View {
     @State private var surfaceColor: RGBColor
     @State private var useGradient: Bool
     @State private var gradientEndColor: RGBColor
-    
+
     @State private var activeColorField: String = "accent"
 
     init(settingsManager: SettingsManager, editingPalette: ThemePalette? = nil) {
@@ -25,206 +25,249 @@ struct ColorPaletteCreator: View {
             _accentColor = State(initialValue: p.accent)
             _surfaceColor = State(initialValue: p.surface)
             _useGradient = State(initialValue: p.backgroundGradientEnd != nil)
-            _gradientEndColor = State(initialValue: p.backgroundGradientEnd ?? RGBColor(red: 0.2, green: 0.2, blue: 0.3))
+            _gradientEndColor = State(initialValue: p.backgroundGradientEnd ?? RGBColor(red: 0.18, green: 0.22, blue: 0.34))
         } else {
-            _paletteName = State(initialValue: "Arctic Night")
-            _textColor = State(initialValue: RGBColor(red: 1.0, green: 1.0, blue: 1.0))
-            _backgroundColor = State(initialValue: RGBColor(red: 0.098, green: 0.098, blue: 0.098))
-            _accentColor = State(initialValue: RGBColor(red: 0.784, green: 0.961, blue: 1.0))
-            _surfaceColor = State(initialValue: RGBColor(red: 0.149, green: 0.149, blue: 0.149))
-            _useGradient = State(initialValue: false)
-            _gradientEndColor = State(initialValue: RGBColor(red: 0.2, green: 0.2, blue: 0.3))
+            _paletteName = State(initialValue: "Night Drive")
+            _textColor = State(initialValue: RGBColor(red: 0.98, green: 0.99, blue: 1.0))
+            _backgroundColor = State(initialValue: RGBColor(red: 0.03, green: 0.03, blue: 0.08))
+            _accentColor = State(initialValue: RGBColor(red: 0.34, green: 0.93, blue: 0.89))
+            _surfaceColor = State(initialValue: RGBColor(red: 0.12, green: 0.18, blue: 0.30))
+            _useGradient = State(initialValue: true)
+            _gradientEndColor = State(initialValue: RGBColor(red: 0.20, green: 0.05, blue: 0.26))
         }
     }
-    
+
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(editingPalette == nil ? "Create Custom Theme" : "Edit Theme")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
+
+            ScrollView {
                 VStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("CREATE PALETTE".uppercased())
-                            .font(.system(size: 12, weight: .semibold))
-                            .tracking(0.15)
-                            .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                        
-                        Text("Create Custom Theme")
-                            .font(.system(size: 28, weight: .bold))
+                    VStack(alignment: .leading, spacing: 8) {
+                        TextField("My Custom Theme", text: $paletteName)
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+                            .padding(12)
+                            .glassCard(cornerRadius: 12)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 24)
-                    .padding(.top, 20)
-                }
 
-                ScrollView {
-                    VStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Palette Name".uppercased())
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                            
-                            TextField("My Custom Theme", text: $paletteName)
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                                .padding(12)
-                                .glassCard(cornerRadius: 12)
-                        }
-                        .padding(.horizontal, 24)
-                        
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Color Palette".uppercased())
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                                .padding(.horizontal, 24)
-                            
-                            VStack(spacing: 12) {
-                                ColorPickerRow(
-                                    label: "Background",
-                                    color: $backgroundColor,
-                                    isDarkMode: settingsManager.settings.isDarkMode,
-                                    isActive: activeColorField == "background",
-                                    onTap: { activeColorField = "background" }
-                                )
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Colors")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
 
-                                HStack {
-                                    Text("Background Gradient")
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                                    Spacer()
-                                    Toggle("", isOn: $useGradient)
-                                        .tint(accentColor.asColor)
-                                }
-                                .padding(12)
-                                .glassCard(cornerRadius: 12)
+                        VStack(spacing: 12) {
+                            ColorPickerRow(
+                                label: "Background",
+                                color: $backgroundColor,
+                                isDarkMode: settingsManager.settings.isDarkMode,
+                                isActive: activeColorField == "background",
+                                onTap: { activeColorField = "background" }
+                            )
 
-                                if useGradient {
-                                    ColorPickerRow(
-                                        label: "Gradient End",
-                                        color: $gradientEndColor,
-                                        isDarkMode: settingsManager.settings.isDarkMode,
-                                        isActive: activeColorField == "gradientEnd",
-                                        onTap: { activeColorField = "gradientEnd" }
-                                    )
-                                }
-                                
-                                ColorPickerRow(
-                                    label: "Text",
-                                    color: $textColor,
-                                    isDarkMode: settingsManager.settings.isDarkMode,
-                                    isActive: activeColorField == "text",
-                                    onTap: { activeColorField = "text" }
-                                )
-                                
-                                ColorPickerRow(
-                                    label: "Accent",
-                                    color: $accentColor,
-                                    isDarkMode: settingsManager.settings.isDarkMode,
-                                    isActive: activeColorField == "accent",
-                                    onTap: { activeColorField = "accent" }
-                                )
-                                
-                                ColorPickerRow(
-                                    label: "Surface",
-                                    color: $surfaceColor,
-                                    isDarkMode: settingsManager.settings.isDarkMode,
-                                    isActive: activeColorField == "surface",
-                                    onTap: { activeColorField = "surface" }
-                                )
+                            HStack {
+                                Text("Background Gradient")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+                                Spacer()
+                                Toggle("", isOn: $useGradient)
+                                    .tint(accentColor.asColor)
                             }
                             .padding(12)
                             .glassCard(cornerRadius: 12)
-                            .padding(.horizontal, 24)
-                        }
-                        
-                        // Color Picker
-                        if !activeColorField.isEmpty {
-                            let binding = colorBinding(for: activeColorField)
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("Color Picker".uppercased())
-                                    .font(.system(size: 12, weight: .semibold))
-                                    .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                                    .padding(.horizontal, 24)
 
-                                InlineColorPicker(color: binding)
-                                    .id(activeColorField)
-                                    .padding(12)
-                                    .glassCard(cornerRadius: 12)
-                                    .padding(.horizontal, 24)
+                            if useGradient {
+                                ColorPickerRow(
+                                    label: "Gradient End",
+                                    color: $gradientEndColor,
+                                    isDarkMode: settingsManager.settings.isDarkMode,
+                                    isActive: activeColorField == "gradientEnd",
+                                    onTap: { activeColorField = "gradientEnd" }
+                                )
                             }
+
+                            ColorPickerRow(
+                                label: "Text",
+                                color: $textColor,
+                                isDarkMode: settingsManager.settings.isDarkMode,
+                                isActive: activeColorField == "text",
+                                onTap: { activeColorField = "text" }
+                            )
+
+                            ColorPickerRow(
+                                label: "Accent",
+                                color: $accentColor,
+                                isDarkMode: settingsManager.settings.isDarkMode,
+                                isActive: activeColorField == "accent",
+                                onTap: { activeColorField = "accent" }
+                            )
+
+                            ColorPickerRow(
+                                label: "Surface",
+                                color: $surfaceColor,
+                                isDarkMode: settingsManager.settings.isDarkMode,
+                                isActive: activeColorField == "surface",
+                                onTap: { activeColorField = "surface" }
+                            )
                         }
-                        
-                        // Preview
+                    }
+                    .padding(16)
+                    .glassCard(cornerRadius: 16)
+                    .padding(.horizontal, 24)
+
+                    if showsPicker {
+                        let binding = colorBinding(for: activeColorField)
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Preview".uppercased())
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                                .padding(.horizontal, 24)
-                            
-                            HStack(spacing: 8) {
-                                ZStack {
-                                    if useGradient {
-                                        LinearGradient(
-                                            colors: [backgroundColor.asColor, gradientEndColor.asColor],
-                                            startPoint: .topLeading, endPoint: .bottomTrailing
-                                        )
-                                    } else {
-                                        backgroundColor.asColor
+                            Text("Visual Picker")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+
+                            InlineColorPicker(color: binding)
+                                .id(activeColorField)
+                        }
+                        .padding(16)
+                        .glassCard(cornerRadius: 16)
+                        .padding(.horizontal, 24)
+                    }
+
+                    if showsHexInputs {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Hex Codes")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+
+                            HexColorFieldRow(label: "Background", color: $backgroundColor)
+
+                            if useGradient {
+                                HexColorFieldRow(label: "Gradient End", color: $gradientEndColor)
+                            }
+
+                            HexColorFieldRow(label: "Text", color: $textColor)
+                            HexColorFieldRow(label: "Accent", color: $accentColor)
+                            HexColorFieldRow(label: "Surface", color: $surfaceColor)
+                        }
+                        .padding(16)
+                        .glassCard(cornerRadius: 16)
+                        .padding(.horizontal, 24)
+                    }
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Preview")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+
+                        ZStack {
+                            previewBackground
+                                .frame(height: 170)
+                                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Text(paletteName.isEmpty ? "My Custom Theme" : paletteName)
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundColor(textColor.asColor)
+                                    Spacer()
+                                    Circle()
+                                        .fill(accentColor.asColor)
+                                        .frame(width: 18, height: 18)
+                                }
+
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(.white.opacity(0.12))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(.white.opacity(0.32), lineWidth: 1)
+                                    )
+                                    .overlay(
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            RoundedRectangle(cornerRadius: 4)
+                                                .fill(textColor.asColor.opacity(0.92))
+                                                .frame(width: 110, height: 12)
+                                            RoundedRectangle(cornerRadius: 4)
+                                                .fill(accentColor.asColor)
+                                                .frame(width: 76, height: 12)
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(16)
+                                    )
+                                    .frame(height: 88)
+
+                                HStack(spacing: 8) {
+                                    ForEach(previewSwatches, id: \.self) { shade in
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(shade)
+                                            .frame(height: 22)
                                     }
                                 }
-                                .frame(height: 80)
-                                .cornerRadius(8)
-                                
-                                VStack(spacing: 4) {
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .fill(textColor.asColor)
-                                        .frame(height: 20)
-                                    
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .fill(accentColor.asColor)
-                                        .frame(height: 20)
-                                    
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .fill(surfaceColor.asColor)
-                                        .frame(height: 20)
-                                }
                             }
-                            .padding(12)
-                            .background(Color.black.opacity(0.3))
-                            .cornerRadius(12)
-                            .padding(.horizontal, 24)
+                            .padding(18)
                         }
-                        
-                        Spacer(minLength: 20)
                     }
-                    .padding(.vertical, 20)
-                }
+                    .padding(16)
+                    .glassCard(cornerRadius: 16)
+                    .padding(.horizontal, 24)
 
-                HStack(spacing: 12) {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        Text("Cancel")
-                            .font(.system(size: 16, weight: .semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                    }
-                    .buttonStyle(.glass)
-                    
-                    Button(action: savePalette) {
-                        Text("Save Palette")
-                            .font(.system(size: 16, weight: .semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                    }
-                    .buttonStyle(.glassProminent)
+                    Spacer(minLength: 20)
                 }
-                .padding(20)
+                .padding(.vertical, 20)
             }
-            .appBackground(settings: settingsManager.settings)
-            .navigationBarHidden(true)
+
+            HStack(spacing: 12) {
+                Button(action: { dismiss() }) {
+                    Text("Cancel")
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                }
+                .buttonStyle(.glass)
+
+                Button(action: savePalette) {
+                    Text("Save Palette")
+                        .font(.system(size: 16, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                }
+                .buttonStyle(.glassProminent)
+            }
+            .padding(20)
+        }
+        .appBackground(settings: settingsManager.settings)
+        .ignoresSafeArea()
+    }
+
+    private var showsPicker: Bool {
+        settingsManager.settings.colorInputMode != "hex"
+    }
+
+    private var showsHexInputs: Bool {
+        settingsManager.settings.colorInputMode != "picker"
+    }
+
+    @ViewBuilder
+    private var previewBackground: some View {
+        if useGradient {
+            LinearGradient(
+                colors: [backgroundColor.asColor, gradientEndColor.asColor],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            backgroundColor.asColor
         }
     }
-    
+
+    private var previewSwatches: [Color] {
+        [accentColor.asColor, surfaceColor.asColor, backgroundColor.asColor]
+    }
+
     private func colorBinding(for fieldName: String) -> Binding<RGBColor> {
         switch fieldName {
         case "background":
@@ -239,7 +282,7 @@ struct ColorPaletteCreator: View {
             return $accentColor
         }
     }
-    
+
     private func savePalette() {
         let paletteId = editingPalette?.id ?? "custom_\(UUID().uuidString.prefix(8))"
         let savedPalette = ThemePalette(
@@ -260,7 +303,7 @@ struct ColorPaletteCreator: View {
         settingsManager.settings.themeColor = paletteId
         settingsManager.save()
 
-        presentationMode.wrappedValue.dismiss()
+        dismiss()
     }
 }
 
@@ -270,27 +313,85 @@ struct ColorPickerRow: View {
     let isDarkMode: Bool
     let isActive: Bool
     let onTap: () -> Void
-    
+
     var body: some View {
-        HStack {
-            Text(label)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(AppColors.textPrimary(isDarkMode: isDarkMode))
-            
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(AppColors.textPrimary(isDarkMode: isDarkMode))
+                Text(color.hexString)
+                    .font(.system(size: 12, weight: .medium, design: .monospaced))
+                    .foregroundColor(AppColors.textSecondary(isDarkMode: isDarkMode))
+            }
+
             Spacer()
-            
-            RoundedRectangle(cornerRadius: 6)
+
+            RoundedRectangle(cornerRadius: 8)
                 .fill(color.asColor)
-                .frame(width: 40, height: 40)
+                .frame(width: 44, height: 44)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .stroke(isActive ? Color.white : Color.clear, lineWidth: 2)
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isActive ? Color.white : Color.white.opacity(0.18), lineWidth: isActive ? 2 : 1)
                 )
         }
         .padding(12)
-        .background(isActive ? Color.white.opacity(0.1) : Color.clear)
+        .background(isActive ? Color.white.opacity(0.08) : Color.clear)
         .cornerRadius(10)
+        .contentShape(Rectangle())
         .onTapGesture(perform: onTap)
+    }
+}
+
+struct HexColorFieldRow: View {
+    let label: String
+    @Binding var color: RGBColor
+    @State private var input: String = ""
+
+    var body: some View {
+        HStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(color.asColor)
+                .frame(width: 28, height: 28)
+
+            Text(label)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white)
+
+            Spacer()
+
+            TextField("#FFFFFF", text: $input)
+                .textInputAutocapitalization(.characters)
+                .autocorrectionDisabled()
+                .multilineTextAlignment(.trailing)
+                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                .foregroundColor(.white)
+                .onSubmit(commit)
+                .onChange(of: input) { _, newValue in
+                    if let parsed = RGBColor(hex: newValue) {
+                        color = parsed
+                    }
+                }
+                .frame(width: 112)
+        }
+        .padding(.vertical, 6)
+        .onAppear {
+            input = color.hexString
+        }
+        .onChange(of: color) { _, newValue in
+            if input != newValue.hexString {
+                input = newValue.hexString
+            }
+        }
+    }
+
+    private func commit() {
+        if let parsed = RGBColor(hex: input) {
+            color = parsed
+            input = parsed.hexString
+        } else {
+            input = color.hexString
+        }
     }
 }
 
@@ -309,7 +410,6 @@ struct InlineColorPicker: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            // 2D saturation/brightness canvas
             GeometryReader { geo in
                 ZStack(alignment: .topLeading) {
                     Color(hue: hue, saturation: 1, brightness: 1)
@@ -321,7 +421,6 @@ struct InlineColorPicker: View {
                         colors: [.clear, .black],
                         startPoint: .top, endPoint: .bottom
                     )
-                    // Thumb
                     Circle()
                         .strokeBorder(Color.white, lineWidth: 2)
                         .background(Circle().fill(color.asColor))
@@ -344,7 +443,6 @@ struct InlineColorPicker: View {
             }
             .frame(height: 200)
 
-            // Hue rainbow slider
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     LinearGradient(colors: hueColors, startPoint: .leading, endPoint: .trailing)
@@ -366,14 +464,13 @@ struct InlineColorPicker: View {
             }
             .frame(height: 28)
 
-            // Hex preview row
             HStack(spacing: 12) {
                 RoundedRectangle(cornerRadius: 8)
                     .fill(color.asColor)
                     .frame(width: 44, height: 44)
                     .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.white.opacity(0.3), lineWidth: 1))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(hexString)
+                    Text(color.hexString)
                         .font(.system(size: 13, weight: .semibold, design: .monospaced))
                         .foregroundColor(.white)
                     Text(String(format: "R%.0f  G%.0f  B%.0f", color.red * 255, color.green * 255, color.blue * 255))
@@ -385,13 +482,6 @@ struct InlineColorPicker: View {
         }
         .onAppear { syncFromColor() }
         .onChange(of: color) { _, _ in syncFromColor() }
-    }
-
-    private var hexString: String {
-        let r = Int(color.red * 255)
-        let g = Int(color.green * 255)
-        let b = Int(color.blue * 255)
-        return String(format: "#%02X%02X%02X", r, g, b)
     }
 
     private func syncFromColor() {

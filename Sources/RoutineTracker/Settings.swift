@@ -40,9 +40,12 @@ struct AppSettings: Codable {
     var saveMode: String = "statistics"
     var customPalettes: [ThemePalette] = []
     var useThemeBackground: Bool = true
+    var showTaskTargets: Bool = false
+    var colorInputMode: String = "both"
 
     var currentPalette: ThemePalette {
-        ThemeColors.getColors(for: themeColor, customPalettes: customPalettes)
+        let resolvedTheme = ThemeColors.canonicalThemeId(for: themeColor)
+        return ThemeColors.getColors(for: resolvedTheme, customPalettes: customPalettes)
     }
 
     init() {}
@@ -54,9 +57,13 @@ struct AppSettings: Codable {
         isDarkMode = (try? c.decode(Bool.self, forKey: .isDarkMode)) ?? true
         language = (try? c.decode(String.self, forKey: .language)) ?? "en"
         themeColor = (try? c.decode(String.self, forKey: .themeColor)) ?? "spaceGrey"
-        saveMode = (try? c.decode(String.self, forKey: .saveMode)) ?? "statistics"
+        let decodedSaveMode = (try? c.decode(String.self, forKey: .saveMode)) ?? "statistics"
+        saveMode = ["statistics", "off"].contains(decodedSaveMode) ? decodedSaveMode : "statistics"
         customPalettes = (try? c.decode([ThemePalette].self, forKey: .customPalettes)) ?? []
         useThemeBackground = (try? c.decode(Bool.self, forKey: .useThemeBackground)) ?? true
+        showTaskTargets = (try? c.decode(Bool.self, forKey: .showTaskTargets)) ?? false
+        let decodedColorInputMode = (try? c.decode(String.self, forKey: .colorInputMode)) ?? "both"
+        colorInputMode = ["picker", "hex", "both"].contains(decodedColorInputMode) ? decodedColorInputMode : "both"
     }
 }
 

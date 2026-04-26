@@ -3,7 +3,7 @@ import SwiftUI
 struct AllStatisticsView: View {
     let routines: [Routine]
     @ObservedObject var settingsManager: SettingsManager
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
 
     private struct RoutineStat: Identifiable {
         let id: String
@@ -16,90 +16,74 @@ struct AllStatisticsView: View {
     @State private var stats: [RoutineStat] = []
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("OVERVIEW".uppercased())
-                        .font(.system(size: 12, weight: .semibold))
-                        .tracking(0.15)
-                        .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+        VStack(spacing: 0) {
+            HStack(spacing: 16) {
+                Text(Translations.string("statistics", language: settingsManager.settings.language))
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
 
-                    Text("Statistics")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+                Spacer()
+
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(settingsManager.settings.currentPalette.accentColor)
+                        .frame(width: 36, height: 36)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 24)
-                .padding(.top, 20)
-                .padding(.bottom, 16)
-
-                ScrollView {
-                    VStack(spacing: 16) {
-                        if stats.isEmpty {
-                            VStack(spacing: 12) {
-                                Image(systemName: "chart.bar")
-                                    .font(.system(size: 48))
-                                    .foregroundColor(settingsManager.settings.currentPalette.accentColor.opacity(0.5))
-                                Text("No statistics yet")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                                Text("Complete a routine to see your stats here.")
-                                    .font(.system(size: 13, weight: .regular))
-                                    .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                                    .multilineTextAlignment(.center)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 60)
-                        } else {
-                            let totalCompletions = stats.reduce(0) { $0 + $1.completions }
-                            HStack(spacing: 12) {
-                                summaryCard(
-                                    value: "\(routines.count)",
-                                    label: "Routines",
-                                    icon: "list.bullet.rectangle"
-                                )
-                                summaryCard(
-                                    value: "\(totalCompletions)",
-                                    label: "Total Runs",
-                                    icon: "checkmark.seal.fill"
-                                )
-                            }
-                            .padding(.horizontal, 24)
-
-                            ForEach(stats) { stat in
-                                routineStatCard(stat)
-                            }
-                            .padding(.horizontal, 24)
-                        }
-                    }
-                    .padding(.bottom, 32)
-                    .padding(.top, 8)
-                }
+                .buttonStyle(.glass)
+                .clipShape(Circle())
             }
-            .background(
-                AppBackgroundView(settings: settingsManager.settings)
-                    .ignoresSafeArea()
-            )
-            .navigationBarHidden(true)
-            .overlay(
-                VStack {
-                    HStack {
-                        Spacer()
-                        Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                                .frame(width: 32, height: 32)
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
+            .padding(.bottom, 16)
+
+            ScrollView {
+                VStack(spacing: 16) {
+                    if stats.isEmpty {
+                        VStack(spacing: 12) {
+                            Image(systemName: "chart.bar")
+                                .font(.system(size: 48))
+                                .foregroundColor(settingsManager.settings.currentPalette.accentColor.opacity(0.5))
+                            Text(Translations.string("no_statistics_yet", language: settingsManager.settings.language))
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+                            Text(Translations.string("complete_routine_to_see_stats", language: settingsManager.settings.language))
+                                .font(.system(size: 13, weight: .regular))
+                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+                                .multilineTextAlignment(.center)
                         }
-                        .buttonStyle(.glass)
-                        .clipShape(Circle())
-                        .padding(.top, 20)
-                        .padding(.trailing, 24)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 60)
+                    } else {
+                        let totalCompletions = stats.reduce(0) { $0 + $1.completions }
+                        HStack(spacing: 12) {
+                            summaryCard(
+                                value: "\(routines.count)",
+                                label: Translations.string("all_routines", language: settingsManager.settings.language),
+                                icon: "list.bullet.rectangle"
+                            )
+                            summaryCard(
+                                value: "\(totalCompletions)",
+                                label: Translations.string("total_runs", language: settingsManager.settings.language),
+                                icon: "chart.line.uptrend.xyaxis"
+                            )
+                        }
+                        .padding(.horizontal, 24)
+
+                        ForEach(stats) { stat in
+                            routineStatCard(stat)
+                        }
+                        .padding(.horizontal, 24)
                     }
-                    Spacer()
                 }
-            )
+                .padding(.bottom, 32)
+                .padding(.top, 8)
+            }
         }
+        .background(
+            AppBackgroundView(settings: settingsManager.settings)
+                .ignoresSafeArea()
+        )
         .onAppear { loadAllStats() }
     }
 
@@ -131,7 +115,7 @@ struct AllStatisticsView: View {
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
                 Spacer()
-                Text("\(stat.completions) runs")
+                Text("\(stat.completions) \(Translations.string("runs", language: settingsManager.settings.language))")
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(accent)
             }
@@ -139,7 +123,7 @@ struct AllStatisticsView: View {
             HStack(spacing: 12) {
                 if let best = stat.bestTime {
                     VStack(spacing: 4) {
-                        Text("BEST")
+                        Text(Translations.string("best", language: settingsManager.settings.language).uppercased())
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
                         Text(formattedTime(best))
@@ -153,7 +137,7 @@ struct AllStatisticsView: View {
 
                 if let avg = stat.averageTime {
                     VStack(spacing: 4) {
-                        Text("AVG")
+                        Text(Translations.string("avg", language: settingsManager.settings.language).uppercased())
                             .font(.system(size: 10, weight: .semibold))
                             .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
                         Text(formattedTime(avg))
@@ -166,7 +150,7 @@ struct AllStatisticsView: View {
                 }
 
                 if stat.bestTime == nil && stat.averageTime == nil {
-                    Text("No runs recorded")
+                    Text(Translations.string("no_runs_recorded", language: settingsManager.settings.language))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
                         .frame(maxWidth: .infinity)

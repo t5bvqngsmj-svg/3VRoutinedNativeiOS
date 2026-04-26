@@ -14,6 +14,7 @@ struct ImagePicker: UIViewControllerRepresentable {
         picker.delegate = context.coordinator
         picker.sourceType = .photoLibrary
         picker.allowsEditing = true
+        picker.mediaTypes = ["public.image"]
         return picker
     }
 

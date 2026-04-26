@@ -4,41 +4,44 @@ struct StatisticsView: View {
     let routine: Routine
     @State private var statistics: RoutineStatistics?
     @ObservedObject var settingsManager: SettingsManager
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                VStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(Translations.string("statistics", language: settingsManager.settings.language).uppercased())
-                            .font(.system(size: 12, weight: .semibold))
-                            .tracking(0.15)
-                            .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                        
-                        Text(routine.name)
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 20)
+        VStack(spacing: 0) {
+            HStack(spacing: 16) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(settingsManager.settings.currentPalette.accentColor)
+                        .frame(width: 36, height: 36)
                 }
+                .buttonStyle(.glass)
+                .clipShape(Circle())
 
-                ScrollView {
-                    if let stats = statistics {
-                        VStack(spacing: 20) {
-                            VStack(spacing: 8) {
-                                Text("\(stats.completions.count)")
-                                    .font(.system(size: 32, weight: .bold))
-                                    .foregroundColor(settingsManager.settings.currentPalette.accentColor)
-                                
-                                Text(Translations.string("completions", language: settingsManager.settings.language))
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(20)
-                            .glassCard(cornerRadius: 12)
+                Text(routine.name)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+
+                Spacer()
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
+
+            ScrollView {
+                if let stats = statistics {
+                    VStack(spacing: 20) {
+                        VStack(spacing: 8) {
+                            Text("\(stats.completions.count)")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(settingsManager.settings.currentPalette.accentColor)
+                            
+                            Text(Translations.string("completions", language: settingsManager.settings.language))
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(20)
+                        .glassCard(cornerRadius: 12)
 
                             HStack(spacing: 12) {
                                 if let fastest = stats.fastestTime {
@@ -115,26 +118,24 @@ struct StatisticsView: View {
                                 .padding(.horizontal, 24)
                             }
                         }
-                        .padding(.vertical, 20)
-                    } else {
-                        VStack(spacing: 12) {
-                            Image(systemName: "chart.bar")
-                                .font(.system(size: 48))
-                                .foregroundColor(settingsManager.settings.currentPalette.accentColor.opacity(0.6))
-                            
-                            Text(Translations.string("no_statistics_available", language: settingsManager.settings.language))
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 60)
+                    .padding(.vertical, 20)
+                } else {
+                    VStack(spacing: 12) {
+                        Image(systemName: "chart.bar")
+                            .font(.system(size: 48))
+                            .foregroundColor(settingsManager.settings.currentPalette.accentColor.opacity(0.6))
+                        
+                        Text(Translations.string("no_statistics_available", language: settingsManager.settings.language))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 60)
                 }
             }
-            .appBackground(settings: settingsManager.settings)
-            .ignoresSafeArea()
-            .navigationBarHidden(true)
         }
+        .appBackground(settings: settingsManager.settings)
+        .ignoresSafeArea()
         .onAppear {
             loadStatistics()
         }

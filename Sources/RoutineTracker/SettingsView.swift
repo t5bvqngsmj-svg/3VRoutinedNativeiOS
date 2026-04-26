@@ -14,159 +14,166 @@ enum PaletteCreatorMode: Identifiable {
 
 struct SettingsView: View {
     @ObservedObject var settingsManager: SettingsManager
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     @State private var paletteCreatorMode: PaletteCreatorMode? = nil
     @State private var selectedLanguage: String
     @State private var selectedTheme: String
+    @State private var showingLanguageDialog = false
+    @State private var showingColorInputDialog = false
     
     init(settingsManager: SettingsManager) {
         self.settingsManager = settingsManager
         _selectedLanguage = State(initialValue: settingsManager.settings.language)
-        _selectedTheme = State(initialValue: settingsManager.settings.themeColor == "teal" ? "spaceGrey" : settingsManager.settings.themeColor)
+        _selectedTheme = State(initialValue: ThemeColors.canonicalThemeId(for: settingsManager.settings.themeColor))
     }
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                VStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(Translations.string("settings", language: settingsManager.settings.language).uppercased())
-                            .font(.system(size: 12, weight: .semibold))
-                            .tracking(0.15)
-                            .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                        
-                        Text(Translations.string("settings", language: settingsManager.settings.language))
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 20)
-                }
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(Translations.string("settings", language: settingsManager.settings.language))
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 24)
+            .padding(.top, 20)
 
-                ScrollView {
-                    VStack(spacing: 20) {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(Translations.string("appearance", language: settingsManager.settings.language).uppercased())
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+            ScrollView {
+                VStack(spacing: 20) {
+                    VStack(spacing: 12) {
+                        HStack {
+                            Image(systemName: settingsManager.settings.isDarkMode ? "moon.fill" : "sun.max.fill")
+                                .font(.system(size: 16))
+                                .foregroundColor(ThemeColors.getColors(for: selectedTheme, customPalettes: settingsManager.settings.customPalettes).accentColor)
                             
-                            VStack(spacing: 12) {
-                                HStack {
-                                    Image(systemName: settingsManager.settings.isDarkMode ? "moon.fill" : "sun.max.fill")
-                                        .font(.system(size: 16))
-                                        .foregroundColor(ThemeColors.getColors(for: selectedTheme, customPalettes: settingsManager.settings.customPalettes).accentColor)
-                                    
-                                    Text(Translations.string("dark_mode", language: settingsManager.settings.language))
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                                    
-                                    Spacer()
-                                    
+                            Text(Translations.string("dark_mode", language: settingsManager.settings.language))
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+                            
+                            Spacer()
+                            
+                            Toggle("", isOn: Binding(
+                                get: { settingsManager.settings.isDarkMode },
+                                set: {
+                                    settingsManager.settings.isDarkMode = $0
+                                    settingsManager.save()
+                                }
+                            ))
+                        }
+                        .padding(12)
+                        .glassCard(cornerRadius: 12)
+
+                        themeSelectionView()
+
+                        selectionRow(
+                            icon: "globe",
+                            title: Translations.string("language", language: settingsManager.settings.language),
+                            value: Language(rawValue: selectedLanguage)?.displayName ?? selectedLanguage,
+                            action: { showingLanguageDialog = true }
+                        )
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            selectionRow(
+                                icon: "target",
+                                title: Translations.string("task_targets", language: settingsManager.settings.language),
+                                trailing: AnyView(
                                     Toggle("", isOn: Binding(
-                                        get: { settingsManager.settings.isDarkMode },
-                                        set: { 
-                                            settingsManager.settings.isDarkMode = $0
+                                        get: { settingsManager.settings.showTaskTargets },
+                                        set: {
+                                            settingsManager.settings.showTaskTargets = $0
                                             settingsManager.save()
                                         }
                                     ))
-                                }
-                                .padding(12)
-                                .glassCard(cornerRadius: 12)
+                                )
+                            )
 
-                                themeSelectionView()
-                            }
-                        }
-                        .padding(.horizontal, 24)
-
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(Translations.string("language", language: settingsManager.settings.language).uppercased())
-                                .font(.system(size: 12, weight: .semibold))
+                            Text(Translations.string("task_targets_description", language: settingsManager.settings.language))
+                                .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-
-                            HStack {
-                                Image(systemName: "globe")
-                                    .font(.system(size: 16))
-                                    .foregroundColor(ThemeColors.getColors(for: selectedTheme, customPalettes: settingsManager.settings.customPalettes).accentColor)
-                                Text(Translations.string("language", language: settingsManager.settings.language))
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                                Spacer()
-                                Picker("", selection: Binding(
-                                    get: { selectedLanguage },
-                                    set: { newVal in
-                                        selectedLanguage = newVal
-                                        settingsManager.settings.language = newVal
-                                        settingsManager.save()
-                                    }
-                                )) {
-                                    ForEach(Language.allCases, id: \.self) { lang in
-                                        Text(lang.displayName).tag(lang.rawValue)
-                                    }
-                                }
-                                .pickerStyle(.menu)
-                                .accentColor(ThemeColors.getColors(for: selectedTheme, customPalettes: settingsManager.settings.customPalettes).accentColor)
-                            }
-                            .padding(12)
-                            .glassCard(cornerRadius: 12)
+                                .padding(.horizontal, 4)
                         }
-                        .padding(.horizontal, 24)
 
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(Translations.string("save_mode", language: settingsManager.settings.language).uppercased())
-                                .font(.system(size: 12, weight: .semibold))
+                        VStack(alignment: .leading, spacing: 10) {
+                            selectionRow(
+                                icon: "tray.and.arrow.down",
+                                title: Translations.string("save_mode", language: settingsManager.settings.language),
+                                trailing: AnyView(
+                                    Toggle("", isOn: Binding(
+                                        get: { settingsManager.settings.saveMode == "statistics" },
+                                        set: {
+                                            settingsManager.settings.saveMode = $0 ? "statistics" : "off"
+                                            settingsManager.save()
+                                        }
+                                    ))
+                                )
+                            )
+
+                            Text(saveModeDescription)
+                                .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-
-                            HStack {
-                                Image(systemName: "tray.and.arrow.down")
-                                    .font(.system(size: 16))
-                                    .foregroundColor(ThemeColors.getColors(for: selectedTheme, customPalettes: settingsManager.settings.customPalettes).accentColor)
-                                Text(Translations.string("save_mode", language: settingsManager.settings.language))
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                                Spacer()
-                                Picker("", selection: Binding(
-                                    get: { settingsManager.settings.saveMode },
-                                    set: { newVal in
-                                        settingsManager.settings.saveMode = newVal
-                                        settingsManager.save()
-                                    }
-                                )) {
-                                    ForEach(["statistics", "leaderboard"], id: \.self) { mode in
-                                        Text(Translations.string(mode, language: settingsManager.settings.language)).tag(mode)
-                                    }
-                                }
-                                .pickerStyle(.menu)
-                                .accentColor(ThemeColors.getColors(for: selectedTheme, customPalettes: settingsManager.settings.customPalettes).accentColor)
-                            }
-                            .padding(12)
-                            .glassCard(cornerRadius: 12)
+                                .padding(.horizontal, 4)
                         }
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 20)
+
+                        VStack(alignment: .leading, spacing: 10) {
+                            selectionRow(
+                                icon: "paintpalette",
+                                title: Translations.string("color_input", language: settingsManager.settings.language),
+                                value: Translations.string(settingsManager.settings.colorInputMode, language: settingsManager.settings.language),
+                                action: { showingColorInputDialog = true }
+                            )
+
+                            Text(Translations.string("color_input_description", language: settingsManager.settings.language))
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+                                .padding(.horizontal, 4)
+                        }
                     }
+                    .padding(.horizontal, 24)
                     .padding(.vertical, 20)
                 }
-
-                HStack {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.uturn.backward.circle.fill")
-                            Text(Translations.string("back_to_home", language: settingsManager.settings.language))
-                                .font(.system(size: 16, weight: .semibold))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                    }
-                    .buttonStyle(.glassProminent)
-                }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
             }
-            .appBackground(settings: settingsManager.settings)
-            .ignoresSafeArea()
+
+            HStack {
+                Button(action: {
+                    dismiss()
+                }) {
+                    HStack {
+                        Image(systemName: "arrow.uturn.backward.circle.fill")
+                        Text(Translations.string("all_routines", language: settingsManager.settings.language))
+                            .font(.system(size: 16, weight: .semibold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                }
+                .buttonStyle(.glassProminent)
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+        }
+        .appBackground(settings: settingsManager.settings)
+        .ignoresSafeArea()
+        .confirmationDialog(Translations.string("language", language: settingsManager.settings.language), isPresented: $showingLanguageDialog, titleVisibility: .visible) {
+            ForEach(Language.allCases, id: \.self) { lang in
+                Button(lang.displayName) {
+                    selectedLanguage = lang.rawValue
+                    settingsManager.settings.language = lang.rawValue
+                    settingsManager.save()
+                }
+            }
+        }
+        .confirmationDialog(Translations.string("color_input", language: settingsManager.settings.language), isPresented: $showingColorInputDialog, titleVisibility: .visible) {
+            Button(Translations.string("picker", language: settingsManager.settings.language)) {
+                settingsManager.settings.colorInputMode = "picker"
+                settingsManager.save()
+            }
+            Button(Translations.string("hex", language: settingsManager.settings.language)) {
+                settingsManager.settings.colorInputMode = "hex"
+                settingsManager.save()
+            }
+            Button(Translations.string("both", language: settingsManager.settings.language)) {
+                settingsManager.settings.colorInputMode = "both"
+                settingsManager.save()
+            }
         }
         .sheet(item: $paletteCreatorMode) { mode in
             switch mode {
@@ -212,6 +219,62 @@ struct SettingsView: View {
         }
         .padding(12)
         .glassCard(cornerRadius: 12)
+    }
+
+    private func selectionRow(icon: String, title: String, value: String? = nil, trailing: AnyView? = nil, action: @escaping () -> Void = {}) -> some View {
+        Group {
+            if let trailing {
+                HStack(spacing: 12) {
+                    Image(systemName: icon)
+                        .font(.system(size: 16))
+                        .foregroundColor(ThemeColors.getColors(for: selectedTheme, customPalettes: settingsManager.settings.customPalettes).accentColor)
+
+                    Text(title)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+
+                    Spacer()
+
+                    trailing
+                }
+                .padding(12)
+                .glassCard(cornerRadius: 12)
+            } else {
+                Button(action: action) {
+                    HStack(spacing: 12) {
+                        Image(systemName: icon)
+                            .font(.system(size: 16))
+                            .foregroundColor(ThemeColors.getColors(for: selectedTheme, customPalettes: settingsManager.settings.customPalettes).accentColor)
+
+                        Text(title)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+
+                        Spacer()
+
+                        if let value {
+                            Text(value)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+                            Image(systemName: "chevron.up.chevron.down")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+                        }
+                    }
+                    .padding(12)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .glassCard(cornerRadius: 12)
+            }
+        }
+    }
+
+    private var saveModeDescription: String {
+        let key = settingsManager.settings.saveMode == "statistics"
+            ? "save_mode_statistics_description"
+            : "save_mode_off_description"
+        return Translations.string(key, language: settingsManager.settings.language)
     }
 
     @ViewBuilder

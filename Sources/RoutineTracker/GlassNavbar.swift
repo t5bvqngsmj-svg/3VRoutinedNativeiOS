@@ -10,39 +10,25 @@ struct GlassNavbar: View {
         let accent = settingsManager.settings.currentPalette.accentColor
 
         ZStack {
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
-                .fill(.ultraThinMaterial)
-
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
-                .fill(accent.opacity(0.06))
-
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.30),
-                            Color.white.opacity(0.08),
-                            Color.clear
-                        ],
-                        startPoint: .top,
-                        endPoint: .center
+            GlassEffectContainer {
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 30, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 30, style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.white.opacity(0.60),
+                                        Color.white.opacity(0.30),
+                                        Color.white.opacity(0.15)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 2.0
+                            )
                     )
-                )
-
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.55),
-                            Color.white.opacity(0.15),
-                            Color.white.opacity(0.05),
-                            Color.white.opacity(0.20)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
+            }
 
             HStack(spacing: 0) {
                 Button(action: homeAction) {
@@ -55,10 +41,10 @@ struct GlassNavbar: View {
                 Button(action: createAction) {
                     ZStack {
                         Circle()
-                            .fill(accent.opacity(0.18))
+                            .fill(accent.opacity(0.20))
                             .frame(width: 54, height: 54)
                         Circle()
-                            .strokeBorder(accent.opacity(0.45), lineWidth: 1.5)
+                            .strokeBorder(accent.opacity(0.60), lineWidth: 1.5)
                             .frame(width: 54, height: 54)
                         Image(systemName: "plus")
                             .font(.system(size: 22, weight: .bold))

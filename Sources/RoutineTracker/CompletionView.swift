@@ -3,12 +3,14 @@ import SwiftUI
 struct CompletionView: View {
     let routine: Routine
     let totalTime: TimeInterval
-    @Environment(\.presentationMode) var presentationMode
+    var onBackToHome: (() -> Void)? = nil
+    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var settingsManager: SettingsManager
+    @State private var displayedCompliment: String = ""
 
     var body: some View {
         VStack(spacing: 0) {
-            Spacer().frame(height: 60)
+            Spacer()
 
             VStack(spacing: 20) {
                 Image(systemName: "checkmark.circle.fill")
@@ -16,17 +18,12 @@ struct CompletionView: View {
                     .foregroundColor(settingsManager.settings.currentPalette.primary)
 
                 VStack(spacing: 8) {
-                    Text(Translations.string("routine_completed", language: settingsManager.settings.language).uppercased())
-                        .font(.system(size: 12, weight: .semibold))
-                        .tracking(0.15)
-                        .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                    
                     Text(Translations.string("great_job", language: settingsManager.settings.language))
                         .font(.system(size: 28, weight: .bold))
                         .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
                 }
             }
-            .padding(.bottom, 40)
+            .padding(.bottom, 32)
 
             VStack(spacing: 16) {
                 VStack(spacing: 8) {
@@ -42,7 +39,7 @@ struct CompletionView: View {
                 .padding(24)
                 .glassCard(cornerRadius: 16)
 
-                Text(getCompliment())
+                Text(displayedCompliment)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
                     .multilineTextAlignment(.center)
@@ -54,40 +51,32 @@ struct CompletionView: View {
 
             Spacer()
 
-            VStack(spacing: 12) {
-                Button(action: {
-                    SharePresenter.share(text: scoreShareText)
-                }) {
-                    HStack {
-                        Image(systemName: "square.and.arrow.up")
-                        Text(Translations.string("share_score", language: settingsManager.settings.language))
-                            .font(.system(size: 16, weight: .semibold))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+            Button(action: {
+                saveCompletion()
+                if let onBackToHome {
+                    onBackToHome()
+                } else {
+                    dismiss()
                 }
-                .buttonStyle(.glass)
-
-                Button(action: {
-                    saveCompletion()
-                    presentationMode.wrappedValue.dismiss()
-                }) {
-                    HStack {
-                        Image(systemName: "arrow.uturn.backward.circle.fill")
-                        Text(Translations.string("back_to_home", language: settingsManager.settings.language))
-                            .font(.system(size: 16, weight: .semibold))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+            }) {
+                HStack {
+                    Image(systemName: "arrow.uturn.backward.circle.fill")
+                    Text(Translations.string("all_routines", language: settingsManager.settings.language))
+                        .font(.system(size: 16, weight: .semibold))
                 }
-                .buttonStyle(.glassProminent)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
             }
+            .buttonStyle(.glassProminent)
             .padding(.horizontal, 24)
             .padding(.bottom, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .appBackground(settings: settingsManager.settings)
         .ignoresSafeArea()
+        .onAppear {
+            displayedCompliment = getCompliment()
+        }
     }
 
     private func formattedTime(_ time: TimeInterval) -> String {
@@ -152,9 +141,4 @@ struct CompletionView: View {
         return RoutineStatistics(routineId: routine.id, routineName: routine.name, completions: [])
     }
 
-    private var scoreShareText: String {
-        Translations.string("share_score_message", language: settingsManager.settings.language)
-            .replacingOccurrences(of: "{routine}", with: routine.name)
-            .replacingOccurrences(of: "{time}", with: formattedTime(totalTime))
-    }
 }

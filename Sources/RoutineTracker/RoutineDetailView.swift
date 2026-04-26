@@ -10,7 +10,7 @@ struct RoutineDetailView: View {
     @State private var showingRunningRoutine = false
     @State private var showingStatistics = false
     @EnvironmentObject var settingsManager: SettingsManager
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.presentationMode) private var presentationMode
 
     var body: some View {
         VStack(spacing: 0) {
@@ -20,48 +20,34 @@ struct RoutineDetailView: View {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(settingsManager.settings.currentPalette.accentColor)
-                            .frame(width: 36, height: 36)
+                            .frame(width: 44, height: 44)
                     }
-                    .buttonStyle(.glass)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .glassCard(cornerRadius: 12)
+                    .buttonStyle(.plain)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(Translations.string("routine_manager", language: settingsManager.settings.language))
-                            .font(.system(size: 12, weight: .semibold))
-                            .tracking(0.15)
-                            .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                        Text(routine.name)
-                            .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                    }
+                    Text(routine.name)
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
 
                     Spacer()
 
-                    if settingsManager.settings.saveMode == "statistics" {
-                        Button(action: { showingStatistics = true }) {
-                            Image(systemName: "chart.bar")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(settingsManager.settings.currentPalette.accentColor)
-                                .frame(width: 36, height: 36)
-                        }
-                        .buttonStyle(.glass)
-                        .clipShape(Circle())
-                    }
-
                     Button(action: {
-                        SharePresenter.share(text: routineShareText)
+                        showingStatistics = true
                     }) {
-                        Image(systemName: "square.and.arrow.up")
+                        Image(systemName: "chart.bar")
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(settingsManager.settings.currentPalette.accentColor)
-                            .frame(width: 36, height: 36)
+                            .frame(width: 44, height: 44)
                     }
-                    .buttonStyle(.glass)
-                    .clipShape(Circle())
+                    .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .glassCard(cornerRadius: 12)
+                    .buttonStyle(.plain)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
+                .zIndex(3)
                 
                 if let imageData = routine.imageData {
                     #if os(iOS)
@@ -74,6 +60,7 @@ struct RoutineDetailView: View {
                             .clipped()
                             .cornerRadius(18)
                             .padding(.horizontal, 24)
+                            .allowsHitTesting(false)
                     }
                     #else
                     if let image = NSImage(data: imageData) {
@@ -85,21 +72,24 @@ struct RoutineDetailView: View {
                             .clipped()
                             .cornerRadius(18)
                             .padding(.horizontal, 24)
+                            .allowsHitTesting(false)
                     }
                     #endif
                 }
 
-                HStack {
-                    Image(systemName: routine.isScheduled ? "calendar.circle" : "target")
-                        .foregroundColor(settingsManager.settings.currentPalette.accentColor)
-                    Text(scheduleSummary)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                    Spacer()
+                if showSummaryCard {
+                    HStack {
+                        Image(systemName: routine.isScheduled ? "calendar.circle" : "target")
+                            .foregroundColor(settingsManager.settings.currentPalette.accentColor)
+                        Text(scheduleSummary)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+                        Spacer()
+                    }
+                    .padding(12)
+                    .glassCard(cornerRadius: 10)
+                    .padding(.horizontal, 24)
                 }
-                .padding(12)
-                .glassCard(cornerRadius: 10)
-                .padding(.horizontal, 24)
             }
 
             ScrollView {
@@ -118,16 +108,14 @@ struct RoutineDetailView: View {
                                 Text(task.name)
                                     .font(.system(size: 16, weight: .semibold))
                                     .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
-                                Text(Translations.string("task_target", language: settingsManager.settings.language) + ": " + task.formattedTargetTime)
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+                                if settingsManager.settings.showTaskTargets {
+                                    Text(Translations.string("task_target", language: settingsManager.settings.language) + ": " + task.formattedTargetTime)
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
+                                }
                             }
                             
                             Spacer()
-                            
-                            Image(systemName: "checkmark.circle")
-                                .font(.system(size: 20))
-                                .foregroundColor(settingsManager.settings.currentPalette.primary)
                         }
                         .padding(16)
                         .glassCard(cornerRadius: 12)
@@ -158,7 +146,11 @@ struct RoutineDetailView: View {
         .ignoresSafeArea(edges: .bottom)
         .navigationBarHidden(true)
         .fullScreenCover(isPresented: $showingRunningRoutine) {
-            RunningRoutineView(routine: routine).environmentObject(settingsManager)
+            RunningRoutineView(routine: routine) {
+                showingRunningRoutine = false
+                            presentationMode.wrappedValue.dismiss()
+            }
+            .environmentObject(settingsManager)
         }
         .sheet(isPresented: $showingStatistics) {
             StatisticsView(routine: routine, settingsManager: settingsManager)
@@ -181,9 +173,7 @@ struct RoutineDetailView: View {
         return Translations.string("target", language: settingsManager.settings.language) + ": \(formattedTime(routine.totalTargetTime))"
     }
 
-    private var routineShareText: String {
-        let lang = settingsManager.settings.language
-        let tasksText = routine.tasks.map { "- \($0.name) (\(formattedTime($0.targetTime)))" }.joined(separator: "\n")
-        return "\(Translations.string("routine_label", language: lang)): \(routine.name)\n\(scheduleSummary)\n\(Translations.string("tasks_label", language: lang)):\n\(tasksText)"
+    private var showSummaryCard: Bool {
+        routine.isScheduled || settingsManager.settings.showTaskTargets
     }
 }

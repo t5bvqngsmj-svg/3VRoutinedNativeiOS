@@ -16,45 +16,45 @@
 		33B04BD423C0A618EC3AF23A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B501210B6442020B82D712D8 /* SettingsView.swift */; };
 		55B0B10BA85C101A6DAA84A3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D569D7ED06F916D75BD825D /* ContentView.swift */; };
 		593D703069BC75764B49C099 /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F19297869C8202121F3648 /* StatisticsView.swift */; };
-		C1A2B3C4D5E6F70812345678 /* AllStatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B3C4D5E6F70801234567 /* AllStatisticsView.swift */; };
-		E1A2B3C4D5E6F70812345678 /* LightModeErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A2B3C4D5E6F70801234567 /* LightModeErrorView.swift */; };
-		B4D202C1FF94D95BFFB467BD /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002903D2CFE8E20469C5DB71 /* ViewExtensions.swift */; };
-		C5BC236941D2FDAE58B35B92 /* RoutineDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B3B622013EE671C00DB5A8 /* RoutineDetailView.swift */; };
-		FB511252A7CF7EE6DADAFA08 /* RunningRoutineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9BCE3C95A7654649E03845 /* RunningRoutineView.swift */; };
-		FD08D374FCF77FFBE569C4F0 /* ThemeColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D7614D92E9674F4F9417634 /* ThemeColors.swift */; };
 		A12121212121212121212121 /* ColorPaletteCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A21212121212121212121212 /* ColorPaletteCreator.swift */; };
 		A1B2C3D4E5F60123456789AB /* ThemeRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A1A2B3C4D5E6F708192A3B4 /* ThemeRow.swift */; };
 		A1B2C3D4E5F70123456789AC /* GlassNavbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A1A2B3C4D5E6F708192A3B5 /* GlassNavbar.swift */; };
 		B123456789ABCDEF1234567 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B223456789ABCDEF1234567 /* ImagePicker.swift */; };
 		B323456789ABCDEF1234567 /* NotificationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B423456789ABCDEF1234567 /* NotificationsManager.swift */; };
+		B4D202C1FF94D95BFFB467BD /* ViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002903D2CFE8E20469C5DB71 /* ViewExtensions.swift */; };
+		C1A2B3C4D5E6F70812345678 /* AllStatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B3C4D5E6F70801234567 /* AllStatisticsView.swift */; };
+		C5BC236941D2FDAE58B35B92 /* RoutineDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8B3B622013EE671C00DB5A8 /* RoutineDetailView.swift */; };
 		C7D8E9F0A1B2C3D4E5F60708 /* SharePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D8E9F0A1B2C3D4E5F60709 /* SharePresenter.swift */; };
 		D1A2B3C4D5E6F70812345678 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1A2B3C4D5E6F70801234567 /* Assets.xcassets */; };
+		E1A2B3C4D5E6F70812345678 /* LightModeErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A2B3C4D5E6F70801234567 /* LightModeErrorView.swift */; };
+		FB511252A7CF7EE6DADAFA08 /* RunningRoutineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D9BCE3C95A7654649E03845 /* RunningRoutineView.swift */; };
+		FD08D374FCF77FFBE569C4F0 /* ThemeColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D7614D92E9674F4F9417634 /* ThemeColors.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		002903D2CFE8E20469C5DB71 /* ViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtensions.swift; sourceTree = "<group>"; };
 		10E0836E2BF455F5121E6CE6 /* CreateRoutineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRoutineView.swift; sourceTree = "<group>"; };
 		17F19297869C8202121F3648 /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
-		C1A2B3C4D5E6F70801234567 /* AllStatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllStatisticsView.swift; sourceTree = "<group>"; };
-		E1A2B3C4D5E6F70801234567 /* LightModeErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightModeErrorView.swift; sourceTree = "<group>"; };
 		1D7614D92E9674F4F9417634 /* ThemeColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeColors.swift; sourceTree = "<group>"; };
-		A21212121212121212121212 /* ColorPaletteCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPaletteCreator.swift; sourceTree = "<group>"; };
-		B223456789ABCDEF1234567 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
-		B423456789ABCDEF1234567 /* NotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsManager.swift; sourceTree = "<group>"; };
-		C7D8E9F0A1B2C3D4E5F60709 /* SharePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePresenter.swift; sourceTree = "<group>"; };
 		1D9BCE3C95A7654649E03845 /* RunningRoutineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningRoutineView.swift; sourceTree = "<group>"; };
 		246F96522124F089B640810D /* CompletionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletionView.swift; sourceTree = "<group>"; };
 		34DE2DF8E34A6C12576948D3 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		5A1A2B3C4D5E6F708192A3B4 /* ThemeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeRow.swift; sourceTree = "<group>"; };
+		5A1A2B3C4D5E6F708192A3B5 /* GlassNavbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassNavbar.swift; sourceTree = "<group>"; };
 		7B63DEEFBF11D52AD37EA304 /* Routine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Routine.swift; sourceTree = "<group>"; };
 		9A8941CAAA8848923C07A48A /* RoutineTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineTrackerApp.swift; sourceTree = "<group>"; };
 		9D569D7ED06F916D75BD825D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A21212121212121212121212 /* ColorPaletteCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPaletteCreator.swift; sourceTree = "<group>"; };
+		B223456789ABCDEF1234567 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
+		B423456789ABCDEF1234567 /* NotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsManager.swift; sourceTree = "<group>"; };
 		B501210B6442020B82D712D8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C1A2B3C4D5E6F70801234567 /* AllStatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllStatisticsView.swift; sourceTree = "<group>"; };
+		C7D8E9F0A1B2C3D4E5F60709 /* SharePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePresenter.swift; sourceTree = "<group>"; };
 		C8B3B622013EE671C00DB5A8 /* RoutineDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineDetailView.swift; sourceTree = "<group>"; };
-		F29C2CE37BC2C060141E7B7F /* Translations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translations.swift; sourceTree = "<group>"; };
-		5A1A2B3C4D5E6F708192A3B4 /* ThemeRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeRow.swift; sourceTree = "<group>"; };
-		5A1A2B3C4D5E6F708192A3B5 /* GlassNavbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassNavbar.swift; sourceTree = "<group>"; };
-		F405664821488E797C219340 /* RoutineTracker.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = RoutineTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1A2B3C4D5E6F70801234567 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E1A2B3C4D5E6F70801234567 /* LightModeErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightModeErrorView.swift; sourceTree = "<group>"; };
+		F29C2CE37BC2C060141E7B7F /* Translations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translations.swift; sourceTree = "<group>"; };
+		F405664821488E797C219340 /* RoutineTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoutineTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -105,7 +105,7 @@
 				F29C2CE37BC2C060141E7B7F /* Translations.swift */,
 				5A1A2B3C4D5E6F708192A3B4 /* ThemeRow.swift */,
 				5A1A2B3C4D5E6F708192A3B5 /* GlassNavbar.swift */,
-		002903D2CFE8E20469C5DB71 /* ViewExtensions.swift */,
+				002903D2CFE8E20469C5DB71 /* ViewExtensions.swift */,
 				D1A2B3C4D5E6F70801234567 /* Assets.xcassets */,
 			);
 			path = RoutineTracker;
@@ -140,8 +140,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 004F0658C8173AFBE5092B2F /* Build configuration list for PBXProject "RoutineTracker" */;
 			developmentRegion = en;
@@ -216,7 +214,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.RoutineTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = "-V.Routined";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -295,7 +293,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.RoutineTracker;
+				PRODUCT_BUNDLE_IDENTIFIER = "-V.Routined";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
