@@ -19,7 +19,7 @@ struct SettingsView: View {
     @State private var selectedLanguage: String
     @State private var selectedTheme: String
     @State private var showingLanguageDialog = false
-    @State private var showingColorInputDialog = false
+    @State private var longPressedPaletteId: String? = nil
     
     init(settingsManager: SettingsManager) {
         self.settingsManager = settingsManager
@@ -29,12 +29,20 @@ struct SettingsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .center) {
                 Text(Translations.string("settings", language: settingsManager.settings.language))
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(AppColors.textPrimary(isDarkMode: settingsManager.settings.isDarkMode))
+                Spacer()
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(ThemeColors.getColors(for: selectedTheme, customPalettes: settingsManager.settings.customPalettes).accentColor)
+                        .frame(width: 36, height: 36)
+                }
+                .buttonStyle(.glass)
+                .clipShape(Circle())
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
             .padding(.top, 20)
 
@@ -54,9 +62,12 @@ struct SettingsView: View {
                             
                             Toggle("", isOn: Binding(
                                 get: { settingsManager.settings.isDarkMode },
-                                set: {
-                                    settingsManager.settings.isDarkMode = $0
+                                set: { newValue in
+                                    settingsManager.settings.isDarkMode = newValue
                                     settingsManager.save()
+                                    if !newValue {
+                                        dismiss()
+                                    }
                                 }
                             ))
                         }
@@ -95,8 +106,8 @@ struct SettingsView: View {
 
                         VStack(alignment: .leading, spacing: 10) {
                             selectionRow(
-                                icon: "tray.and.arrow.down",
-                                title: Translations.string("save_mode", language: settingsManager.settings.language),
+                                icon: "chart.bar.fill",
+                                title: Translations.string("statistics", language: settingsManager.settings.language),
                                 trailing: AnyView(
                                     Toggle("", isOn: Binding(
                                         get: { settingsManager.settings.saveMode == "statistics" },
@@ -113,42 +124,11 @@ struct SettingsView: View {
                                 .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
                                 .padding(.horizontal, 4)
                         }
-
-                        VStack(alignment: .leading, spacing: 10) {
-                            selectionRow(
-                                icon: "paintpalette",
-                                title: Translations.string("color_input", language: settingsManager.settings.language),
-                                value: Translations.string(settingsManager.settings.colorInputMode, language: settingsManager.settings.language),
-                                action: { showingColorInputDialog = true }
-                            )
-
-                            Text(Translations.string("color_input_description", language: settingsManager.settings.language))
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
-                                .padding(.horizontal, 4)
-                        }
                     }
                     .padding(.horizontal, 24)
                     .padding(.vertical, 20)
                 }
             }
-
-            HStack {
-                Button(action: {
-                    dismiss()
-                }) {
-                    HStack {
-                        Image(systemName: "arrow.uturn.backward.circle.fill")
-                        Text(Translations.string("all_routines", language: settingsManager.settings.language))
-                            .font(.system(size: 16, weight: .semibold))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                }
-                .buttonStyle(.glassProminent)
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 20)
         }
         .appBackground(settings: settingsManager.settings)
         .ignoresSafeArea()
@@ -159,20 +139,6 @@ struct SettingsView: View {
                     settingsManager.settings.language = lang.rawValue
                     settingsManager.save()
                 }
-            }
-        }
-        .confirmationDialog(Translations.string("color_input", language: settingsManager.settings.language), isPresented: $showingColorInputDialog, titleVisibility: .visible) {
-            Button(Translations.string("picker", language: settingsManager.settings.language)) {
-                settingsManager.settings.colorInputMode = "picker"
-                settingsManager.save()
-            }
-            Button(Translations.string("hex", language: settingsManager.settings.language)) {
-                settingsManager.settings.colorInputMode = "hex"
-                settingsManager.save()
-            }
-            Button(Translations.string("both", language: settingsManager.settings.language)) {
-                settingsManager.settings.colorInputMode = "both"
-                settingsManager.save()
             }
         }
         .sheet(item: $paletteCreatorMode) { mode in
@@ -313,6 +279,7 @@ struct SettingsView: View {
     @ViewBuilder
     private func customPaletteOptionView(_ palette: ThemePalette) -> some View {
         let colors = ThemeColors.getColors(for: palette.id, customPalettes: settingsManager.settings.customPalettes)
+        let isLongPressed = longPressedPaletteId == palette.id
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 8) {
                 HStack(spacing: 4) {
@@ -338,31 +305,48 @@ struct SettingsView: View {
             .padding(4)
             .glassCard(cornerRadius: 14)
             .onTapGesture {
-                selectedTheme = palette.id
-                settingsManager.settings.themeColor = palette.id
-                settingsManager.save()
+                if isLongPressed {
+                    longPressedPaletteId = nil
+                } else {
+                    selectedTheme = palette.id
+                    settingsManager.settings.themeColor = palette.id
+                    settingsManager.save()
+                }
+            }
+            .onLongPressGesture {
+                longPressedPaletteId = palette.id
             }
 
-            HStack(spacing: 0) {
-                Button {
-                    deleteCustomPalette(id: palette.id)
-                } label: {
-                    Image(systemName: "trash.fill")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundColor(.red.opacity(0.85))
-                        .padding(5)
+            if isLongPressed {
+                HStack(spacing: 4) {
+                    Button {
+                        paletteCreatorMode = .edit(palette)
+                        longPressedPaletteId = nil
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.9))
+                            .padding(8)
+                            .background(Color.white.opacity(0.15))
+                            .clipShape(Circle())
+                    }
+                    Button {
+                        deleteCustomPalette(id: palette.id)
+                        longPressedPaletteId = nil
+                    } label: {
+                        Image(systemName: "trash.fill")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.red.opacity(0.9))
+                            .padding(8)
+                            .background(Color.red.opacity(0.15))
+                            .clipShape(Circle())
+                    }
                 }
-                Button {
-                    paletteCreatorMode = .edit(palette)
-                } label: {
-                    Image(systemName: "pencil")
-                        .font(.system(size: 8, weight: .bold))
-                        .foregroundColor(.white.opacity(0.85))
-                        .padding(5)
-                }
+                .padding(6)
+                .transition(.scale.combined(with: .opacity))
             }
-            .padding(2)
         }
+        .animation(.easeInOut(duration: 0.15), value: isLongPressed)
     }
 
     @ViewBuilder

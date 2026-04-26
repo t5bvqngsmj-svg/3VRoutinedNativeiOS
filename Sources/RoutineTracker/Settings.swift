@@ -63,7 +63,7 @@ struct AppSettings: Codable {
         useThemeBackground = (try? c.decode(Bool.self, forKey: .useThemeBackground)) ?? true
         showTaskTargets = (try? c.decode(Bool.self, forKey: .showTaskTargets)) ?? false
         let decodedColorInputMode = (try? c.decode(String.self, forKey: .colorInputMode)) ?? "both"
-        colorInputMode = ["picker", "hex", "both"].contains(decodedColorInputMode) ? decodedColorInputMode : "both"
+        colorInputMode = "both"
     }
 }
 

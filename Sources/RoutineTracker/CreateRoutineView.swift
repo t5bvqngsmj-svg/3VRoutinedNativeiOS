@@ -168,25 +168,35 @@ struct CreateRoutineView: View {
     private var detailsStepView: some View {
         VStack(spacing: 20) {
             if let image = routineImage {
-                #if os(iOS)
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 180)
-                    .frame(maxWidth: .infinity)
-                    .clipped()
-                    .cornerRadius(18)
-                    .padding(.horizontal, 24)
-                #else
-                Image(nsImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 180)
-                    .frame(maxWidth: .infinity)
-                    .clipped()
-                    .cornerRadius(18)
-                    .padding(.horizontal, 24)
-                #endif
+                ZStack(alignment: .topTrailing) {
+                    #if os(iOS)
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 180)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                        .cornerRadius(18)
+                        .padding(.horizontal, 24)
+                    #else
+                    Image(nsImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 180)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                        .cornerRadius(18)
+                        .padding(.horizontal, 24)
+                    #endif
+                    Button(action: { routineImage = nil }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.4), radius: 2)
+                    }
+                    .padding(.top, 8)
+                    .padding(.trailing, 32)
+                }
             }
 
             VStack(spacing: 12) {
@@ -326,6 +336,7 @@ struct CreateRoutineView: View {
                     .padding(12)
                     .glassCard(cornerRadius: 16)
                     .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 }
                 .onMove(perform: moveTask)
                 .onDelete(perform: deleteTask)
@@ -364,16 +375,13 @@ struct CreateRoutineView: View {
     }
 
     private var stepSummary: String {
-        if routineName.isEmpty {
-            return Translations.string("upload_image", language: settingsManager.settings.language)
-        }
         return routineName
     }
 
     private var tasksSummary: String {
         let lang = settingsManager.settings.language
         if tasks.isEmpty {
-            return Translations.string("tasks_label", language: lang)
+            return Translations.string("add_tasks", language: lang)
         }
         return "\(tasks.count) \(Translations.string("tasks", language: lang))"
     }

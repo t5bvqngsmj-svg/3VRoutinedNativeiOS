@@ -42,6 +42,7 @@ struct StatisticsView: View {
                         .frame(maxWidth: .infinity)
                         .padding(20)
                         .glassCard(cornerRadius: 12)
+                        .padding(.horizontal, 24)
 
                             HStack(spacing: 12) {
                                 if let fastest = stats.fastestTime {
