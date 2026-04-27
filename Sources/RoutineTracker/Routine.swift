@@ -8,8 +8,10 @@ struct Routine: Identifiable, Codable, Equatable {
     var imageData: Data? = nil
     var isScheduled: Bool = false
     var scheduledTime: Date? = nil
+    var scheduledDays: Set<Int> = []
+    var isPinned: Bool = false
 
-    init(id: UUID = UUID(), name: String, tasks: [TaskItem], targetTime: TimeInterval = 0, imageData: Data? = nil, isScheduled: Bool = false, scheduledTime: Date? = nil) {
+    init(id: UUID = UUID(), name: String, tasks: [TaskItem], targetTime: TimeInterval = 0, imageData: Data? = nil, isScheduled: Bool = false, scheduledTime: Date? = nil, scheduledDays: Set<Int> = [], isPinned: Bool = false) {
         self.id = id
         self.name = name
         self.tasks = tasks
@@ -17,6 +19,8 @@ struct Routine: Identifiable, Codable, Equatable {
         self.imageData = imageData
         self.isScheduled = isScheduled
         self.scheduledTime = scheduledTime
+        self.scheduledDays = scheduledDays
+        self.isPinned = isPinned
     }
 
     init(from decoder: Decoder) throws {
@@ -28,6 +32,8 @@ struct Routine: Identifiable, Codable, Equatable {
         imageData = try? c.decodeIfPresent(Data.self, forKey: .imageData)
         isScheduled = (try? c.decode(Bool.self, forKey: .isScheduled)) ?? false
         scheduledTime = try? c.decodeIfPresent(Date.self, forKey: .scheduledTime)
+        scheduledDays = (try? c.decode(Set<Int>.self, forKey: .scheduledDays)) ?? []
+        isPinned = (try? c.decode(Bool.self, forKey: .isPinned)) ?? false
     }
 
     var totalTargetTime: TimeInterval {
@@ -39,7 +45,10 @@ struct Routine: Identifiable, Codable, Equatable {
             guard let scheduledTime else { return "Scheduled" }
             let formatter = DateFormatter()
             formatter.dateFormat = "HH:mm"
-            return "Scheduled \(formatter.string(from: scheduledTime))"
+            let dayNames = [2: "Mo", 3: "Tu", 4: "We", 5: "Th", 6: "Fr", 7: "Sa", 1: "Su"]
+            let dayOrder = [2, 3, 4, 5, 6, 7, 1]
+            let dayLabel = scheduledDays.isEmpty ? "" : " · " + dayOrder.filter { scheduledDays.contains($0) }.compactMap { dayNames[$0] }.joined(separator: " ")
+            return "Scheduled \(formatter.string(from: scheduledTime))\(dayLabel)"
         }
 
         let minutes = Int(totalTargetTime) / 60

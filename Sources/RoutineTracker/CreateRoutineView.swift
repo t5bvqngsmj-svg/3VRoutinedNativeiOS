@@ -23,10 +23,11 @@ struct CreateRoutineView: View {
     @State private var newTaskTargetMinutes = "5"
     @State private var isScheduledRoutine = false
     @State private var routineScheduledTime = Date()
+    @State private var scheduledDays: Set<Int> = []
     @State private var routineImage: PlatformImage?
     @State private var showingImagePicker = false
     @State private var currentStep: CreateRoutineStep = .details
-        @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var settingsManager: SettingsManager
 
     init(routines: Binding<[Routine]>, editingRoutine: Routine? = nil, onUpdate: ((Routine) -> Void)? = nil) {
@@ -38,6 +39,7 @@ struct CreateRoutineView: View {
             _tasks = State(initialValue: r.tasks)
             _isScheduledRoutine = State(initialValue: r.isScheduled)
             _routineScheduledTime = State(initialValue: r.scheduledTime ?? Date())
+            _scheduledDays = State(initialValue: r.scheduledDays)
             if let data = r.imageData {
                 #if os(iOS)
                 if let img = UIImage(data: data) {
@@ -113,7 +115,9 @@ struct CreateRoutineView: View {
             targetTime: totalTargetTime,
             imageData: imageData,
             isScheduled: isScheduledRoutine,
-            scheduledTime: isScheduledRoutine ? routineScheduledTime : nil
+            scheduledTime: isScheduledRoutine ? routineScheduledTime : nil,
+            scheduledDays: isScheduledRoutine ? scheduledDays : [],
+            isPinned: editingRoutine?.isPinned ?? false
         )
 
         if let onUpdate {
@@ -123,12 +127,15 @@ struct CreateRoutineView: View {
         }
 
         if savedRoutine.isScheduled {
-            NotificationsManager.scheduleNotifications(for: savedRoutine)
+            NotificationsManager.scheduleNotifications(
+                for: savedRoutine,
+                useAdaptive: settingsManager.settings.adaptiveReminderEngineEnabled
+            )
         } else {
             NotificationsManager.cancelNotifications(for: savedRoutine)
         }
 
-        dismiss()
+        presentationMode.wrappedValue.dismiss()
     }
 
     private var totalTargetTime: TimeInterval {
@@ -208,11 +215,9 @@ struct CreateRoutineView: View {
                         showingImagePicker = true
                     }) {
                         Image(systemName: routineImage == nil ? "photo.badge.plus" : "photo.circle.fill")
-                            .font(.system(size: 18, weight: .semibold))
-                            .frame(width: 42, height: 42)
+                            .font(.system(size: 17, weight: .semibold))
                     }
-                    .buttonStyle(.glass)
-                    .clipShape(Circle())
+                    .buttonStyle(.liquidIconCircle(accent: settingsManager.settings.currentPalette.accentColor, size: 42, prominent: true))
                     .accessibilityLabel(Translations.string("upload_image", language: settingsManager.settings.language))
                 }
 
@@ -230,6 +235,8 @@ struct CreateRoutineView: View {
                         .datePickerStyle(.compact)
                         .padding(12)
                         .glassCard(cornerRadius: 12)
+
+                    WeekDaySelector(selected: $scheduledDays, accent: settingsManager.settings.currentPalette.accentColor, isDarkMode: settingsManager.settings.isDarkMode)
                 }
             }
             .padding(.horizontal, 24)
@@ -252,7 +259,7 @@ struct CreateRoutineView: View {
                 .disabled(routineName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
                 Button(action: {
-                    dismiss()
+                    presentationMode.wrappedValue.dismiss()
                 }) {
                     Text(Translations.string("cancel", language: settingsManager.settings.language))
                         .font(.system(size: 16, weight: .semibold))

@@ -3,7 +3,7 @@ import SwiftUI
 struct ColorPaletteCreator: View {
     @ObservedObject var settingsManager: SettingsManager
     var editingPalette: ThemePalette? = nil
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
 
     @State private var paletteName: String
     @State private var textColor: RGBColor
@@ -221,7 +221,7 @@ struct ColorPaletteCreator: View {
             }
 
             HStack(spacing: 12) {
-                Button(action: { dismiss() }) {
+                Button(action: { presentationMode.wrappedValue.dismiss() }) {
                     Text("Cancel")
                         .font(.system(size: 16, weight: .semibold))
                         .frame(maxWidth: .infinity)
@@ -303,7 +303,7 @@ struct ColorPaletteCreator: View {
         settingsManager.settings.themeColor = paletteId
         settingsManager.save()
 
-        dismiss()
+        presentationMode.wrappedValue.dismiss()
     }
 }
 

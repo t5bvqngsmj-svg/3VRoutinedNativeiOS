@@ -42,6 +42,11 @@ struct AppSettings: Codable {
     var useThemeBackground: Bool = true
     var showTaskTargets: Bool = false
     var colorInputMode: String = "both"
+    var countdownBetaEnabled: Bool = false
+    var countdownMilestoneNotificationsEnabled: Bool = true
+    var adaptiveReminderEngineEnabled: Bool = false
+    var quickCreateBetaEnabled: Bool = false
+    var betasEnabled: Bool = true
 
     var currentPalette: ThemePalette {
         let resolvedTheme = ThemeColors.canonicalThemeId(for: themeColor)
@@ -62,13 +67,19 @@ struct AppSettings: Codable {
         customPalettes = (try? c.decode([ThemePalette].self, forKey: .customPalettes)) ?? []
         useThemeBackground = (try? c.decode(Bool.self, forKey: .useThemeBackground)) ?? true
         showTaskTargets = (try? c.decode(Bool.self, forKey: .showTaskTargets)) ?? false
-        let decodedColorInputMode = (try? c.decode(String.self, forKey: .colorInputMode)) ?? "both"
+            _ = (try? c.decode(String.self, forKey: .colorInputMode)) ?? "both"
         colorInputMode = "both"
+        countdownBetaEnabled = (try? c.decode(Bool.self, forKey: .countdownBetaEnabled)) ?? false
+        countdownMilestoneNotificationsEnabled = (try? c.decode(Bool.self, forKey: .countdownMilestoneNotificationsEnabled)) ?? true
+        adaptiveReminderEngineEnabled = (try? c.decode(Bool.self, forKey: .adaptiveReminderEngineEnabled)) ?? false
+        quickCreateBetaEnabled = (try? c.decode(Bool.self, forKey: .quickCreateBetaEnabled)) ?? false
+        betasEnabled = (try? c.decode(Bool.self, forKey: .betasEnabled)) ?? true
     }
 }
 
 class SettingsManager: ObservableObject {
     @Published var settings: AppSettings
+    @Published var resetToken: UUID = UUID()
     
     init() {
         if let data = UserDefaults.standard.data(forKey: "appSettings"),

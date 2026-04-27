@@ -4,19 +4,16 @@ struct StatisticsView: View {
     let routine: Routine
     @State private var statistics: RoutineStatistics?
     @ObservedObject var settingsManager: SettingsManager
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
     
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 16) {
-                Button(action: { dismiss() }) {
+                Button(action: { presentationMode.wrappedValue.dismiss() }) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(settingsManager.settings.currentPalette.accentColor)
-                        .frame(width: 36, height: 36)
+                        .font(.system(size: 15, weight: .semibold))
                 }
-                .buttonStyle(.glass)
-                .clipShape(Circle())
+                .buttonStyle(.liquidIconCircle(accent: settingsManager.settings.currentPalette.accentColor))
 
                 Text(routine.name)
                     .font(.system(size: 28, weight: .bold))

@@ -4,7 +4,7 @@ struct CompletionView: View {
     let routine: Routine
     let totalTime: TimeInterval
     var onBackToHome: (() -> Void)? = nil
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
     @EnvironmentObject var settingsManager: SettingsManager
     @State private var displayedCompliment: String = ""
 
@@ -56,7 +56,7 @@ struct CompletionView: View {
                 if let onBackToHome {
                     onBackToHome()
                 } else {
-                    dismiss()
+                    presentationMode.wrappedValue.dismiss()
                 }
             }) {
                 HStack {
@@ -130,6 +130,11 @@ struct CompletionView: View {
         
         if let data = try? JSONEncoder().encode(stats) {
             UserDefaults.standard.set(data, forKey: "statistics_\(routine.id)")
+        }
+
+        if settingsManager.settings.adaptiveReminderEngineEnabled && routine.isScheduled {
+            NotificationsManager.recordAdaptiveCompletion(for: routine, completionDate: Date())
+            NotificationsManager.scheduleNotifications(for: routine, useAdaptive: true)
         }
     }
     

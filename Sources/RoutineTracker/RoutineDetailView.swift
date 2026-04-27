@@ -22,9 +22,8 @@ struct RoutineDetailView: View {
                             .foregroundColor(settingsManager.settings.currentPalette.accentColor)
                             .frame(width: 44, height: 44)
                     }
-                    .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .glassCard(cornerRadius: 12)
-                    .buttonStyle(.plain)
+                    .buttonStyle(.glass)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                     Text(routine.name)
                         .font(.system(size: 22, weight: .bold))
@@ -40,9 +39,8 @@ struct RoutineDetailView: View {
                             .foregroundColor(settingsManager.settings.currentPalette.accentColor)
                             .frame(width: 44, height: 44)
                     }
-                    .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .glassCard(cornerRadius: 12)
-                    .buttonStyle(.plain)
+                    .buttonStyle(.glass)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 20)

@@ -3,7 +3,8 @@ import SwiftUI
 struct AllStatisticsView: View {
     let routines: [Routine]
     @ObservedObject var settingsManager: SettingsManager
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.isPresented) private var isPresented
 
     private struct RoutineStat: Identifiable {
         let id: String
@@ -24,14 +25,13 @@ struct AllStatisticsView: View {
 
                 Spacer()
 
-                Button(action: { dismiss() }) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(settingsManager.settings.currentPalette.accentColor)
-                        .frame(width: 36, height: 36)
+                if isPresented {
+                    Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15, weight: .semibold))
+                    }
+                    .buttonStyle(.liquidIconCircle(accent: settingsManager.settings.currentPalette.accentColor))
                 }
-                .buttonStyle(.glass)
-                .clipShape(Circle())
             }
             .padding(.horizontal, 24)
             .padding(.top, 20)

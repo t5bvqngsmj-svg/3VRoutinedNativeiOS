@@ -24,6 +24,8 @@ struct ThemeRow: View {
                             .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
                     }
                 }
+                .buttonStyle(.glass)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
             // Customizable 4th slot
             Button(action: {
@@ -42,6 +44,8 @@ struct ThemeRow: View {
                         .foregroundColor(AppColors.textSecondary(isDarkMode: settingsManager.settings.isDarkMode))
                 }
             }
+            .buttonStyle(.glass)
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .sheet(isPresented: $showingPaletteCreator) {
                 ColorPaletteCreator(settingsManager: settingsManager)
             }
